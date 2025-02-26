@@ -6,8 +6,7 @@ import time
 import gc
 from pynvml import nvmlInit, nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo
 from dotenv import load_dotenv
-from langchain.vectorstores.faiss import FAISS
-from langchain.embeddings import HuggingFaceEmbeddings
+
 
 load_dotenv()
 # # Funzioni per la gestione della memoria GPU
@@ -49,8 +48,8 @@ def display_chatbot_page():
     # If there's only one item in the list, no need for a slider
         existing_vector_store = vector_store_list[0]
  
-    temperature = 1.0
-    max_length = 300
+    temperature = 0.01
+    max_length = 500
 
     # Prepara il modello LLM se il token è disponibile
     if env_token:
@@ -74,15 +73,16 @@ def display_chatbot_page():
             st.markdown(question)
         # Genera la risposta e recupera la fonte
         answer, doc_source = falcon.generate_answer(question, env_token)
+        cleaned_doc_source = " ".join([doc.replace("\n", " ") for doc in doc_source])
         with st.chat_message("assistant"):
-            st.markdown(answer)
-            st.markdown(f"**Fonte:** {doc_source}")
+            #st.markdown(answer)
+            st.markdown(f"{cleaned_doc_source}")
         st.session_state.history.append({"role": "assistant", 
-                                         "content": f"{answer}\n\n**Fonte:** {doc_source}"})
+                                         "content": f"{doc_source}"})
 
     # Espandi per visualizzare lo storico della chat e le fonti
-    with st.expander("Storico Chat e Informazioni sulle Fonti"):
-        st.write(st.session_state.history)
+    #with st.expander("Storico Chat e Informazioni sulle Fonti"):
+        #st.write(st.session_state.history)
 
 def main():
     #clear_gpu_memory()
